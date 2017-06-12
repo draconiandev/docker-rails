@@ -2,16 +2,16 @@ class PostsController < ApplicationController
   respond_to :html, :json
 
   def index
-    @posts = if search_string
-      Post.elasticsearch search_string,
-                         page:     params[:page],
-                         per_page: 25
+    if search_string
+      @result = Post.search(search_string).
+                     page(params[:page])
+      @posts = @result.records
     else
-      Post.order(updated_at: :desc).
-        page(params[:page]).
-        per(25)
+      @posts = Post.order(updated_at: :desc).
+                page(params[:page]).
+                per(25)
+      authorize @posts
     end
-    authorize @posts
 
     respond_with @posts do |format|
       format.js { render 'kaminari/infinite-scrolling', locals: { objects: @posts } }

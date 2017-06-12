@@ -1,17 +1,19 @@
 - cache [ post, search_string ] do
-  tr[data-href=url_for(post)]
+  tr[data-href=post_path(post)]
     td.js-row-link
       - if post.image
         = icon('picture-o')
         '
-      - if search_string && post.search_highlights[:title]
-        == post.search_highlights[:title]
+      - if hit.respond_to? :highlight
+        == hit.highlight.title.to_a.join(' ').presence || post.title.truncate(50)
       - else
         = post.title.truncate(50)
+
     td.js-row-link.text-muted
-      - if search_string && post.search_highlights[:content]
-        ==  post.search_highlights[:content]
+      - if hit.respond_to? :highlight
+        == hit.highlight.content.to_a.join(' ').presence || post.content.truncate(80)
       - else
         = post.content.truncate(80)
+
     td.js-row-link.text-right.hidden-xs-down
       = time_tag post.updated_at
